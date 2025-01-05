@@ -1,10 +1,21 @@
-name: Test Suite
+name: Test
 on: [push, pull_request]
+
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+  SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+  SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+  SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  PORT: 8000
+  HOST: 0.0.0.0
 
 jobs:
   test:
     runs-on: ubuntu-latest
     environment: test
+    
     steps:
       - uses: actions/checkout@v3
       
@@ -13,22 +24,22 @@ jobs:
         with:
           python-version: '3.12'
           
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-          
-      - name: Install Python dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
           pip install pytest pytest-cov
           
-      - name: Run Backend Tests
+      - name: Run Tests
         run: |
           cd backend
-          python -m pytest --cov=. --cov-report=xml
+          pytest --cov=app --cov-report=xml
         env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           
       - name: Upload coverage to Codecov
